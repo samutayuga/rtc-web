@@ -5,7 +5,6 @@ var wsServer = new WebSocketServer({
 });
 var users = {};
 wsServer.on('connection', function (conn) {
-    console.log("User connected");
     conn.on('message', function (message) {
         var data;
         try {
