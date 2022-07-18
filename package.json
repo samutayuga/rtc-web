@@ -1,0 +1,28 @@
+{
+  "name": "rtc-web",
+  "version": "1.0.0",
+  "description": "This is to test WebRTC",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node signaling.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/samutayuga/rtc-web.git"
+  },
+  "keywords": [
+    "rtc"
+  ],
+  "author": "Putu Mas",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/samutayuga/rtc-web/issues"
+  },
+  "homepage": "https://github.com/samutayuga/rtc-web#readme",
+  "dependencies": {
+    "recordrtc": "^5.6.2",
+    "websocket": "^1.0.34",
+    "wscat": "^5.2.0"
+  }
+}
