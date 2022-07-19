@@ -1,8 +1,12 @@
 var video = document.querySelector('video');
+var connection = new WebSocket('ws://localhost:9090');
 
+connection.onopen = function () {
+    console.log("Connected to the server");
+}
 if (!navigator.getDisplayMedia && !navigator.mediaDevices.getDisplayMedia) {
     var error = 'Your browser does NOT support the getDisplayMedia API.';
-    document.querySelector('h1').innerHTML = error;
+    document.querySelector('h3').innerHTML = error;
 
     document.querySelector('video').style.display = 'none';
     document.getElementById('btn-start-recording').style.display = 'none';
@@ -59,11 +63,27 @@ function stopRecordingCallback() {
 }
 
 var recorder; // globally accessible
+var h3 = document.querySelector('h3');
+var blobs = [];
+
 function callbackForStream(screen) {
     video.srcObject = screen;
 
     recorder = RecordRTC(screen, {
-        type: 'video'
+        recordType: MediaStreamRecorder,
+        mimeType: 'video/webm',
+        timeSlice: 1000,// pass this parameter
+        //getNativeBlob: true,
+        ondataavailable: function (blob) {
+            blobs.push(blob);
+            connection.send(blob);
+            var size = 0;
+            blobs.forEach(function (b) {
+                size += b.size;
+            });
+            h3.innerHTML = 'Total blobs: ' + blobs.length + ' (Total size: ' + bytesToSize(size) + ')';
+
+        }
     });
 
     recorder.startRecording();
@@ -73,10 +93,12 @@ function callbackForStream(screen) {
     console.log(recorder);
     document.getElementById('btn-stop-recording').disabled = false;
 }
+
 var intervalKey;
+
 function recordWithOther(screen) {
-    var context=new window.AudioContext()
-    var mediaStreamSource=context.createMediaStreamSource(screen)
+    var context = new window.AudioContext()
+    var mediaStreamSource = context.createMediaStreamSource(screen)
     //recorder=new Recorder(mediaStreamSource);
     video.srcObject = screen;
 
@@ -84,8 +106,8 @@ function recordWithOther(screen) {
 
     recorder.record();
 
-    intervalKey = setInterval(function() {
-        recorder.exportWAV(function(blob) {
+    intervalKey = setInterval(function () {
+        recorder.exportWAV(function (blob) {
             recorder.clear();
             console.log(blob);
         });
@@ -95,6 +117,7 @@ function recordWithOther(screen) {
     recorder.screen = screen;
     document.getElementById('btn-stop-recording').disabled = false;
 }
+
 document.getElementById('btn-start-recording').onclick = function () {
     this.disabled = true;
     captureScreen(callbackForStream);
