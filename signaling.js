@@ -14,7 +14,7 @@ wsServer.on('connection', function (conn) {
             data = {};
         }
         switch (data.type) {
-            case "login":
+            case "data":
                 if (users[data.name]) {
                     sendToOtherUser(conn, {
                         type: "login",
