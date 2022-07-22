@@ -21,10 +21,8 @@
   },
   "homepage": "https://github.com/samutayuga/rtc-web#readme",
   "dependencies": {
-    "ffmpeg-wrapper": "^1.0.0",
-    "node-media-server": "^2.4.1",
     "recordrtc": "^5.6.2",
-    "websocket": "^1.0.34",
-    "wscat": "^5.2.0"
+    "uuid": "^8.3.2",
+    "websocket": "^1.0.34"
   }
 }
