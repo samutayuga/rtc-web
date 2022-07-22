@@ -54,31 +54,6 @@ function invokeGetDisplayMedia(success, error) {
 }
 
 
-// function captureScreen(callback) {
-//     invokeGetDisplayMedia(function (screen) {
-//         addStreamStopListener(screen, function () {
-//             document.getElementById('btn-stop-recording').click();
-//         });
-//         invokeUserMedia(captureAudio,error);
-//         callback(screen);
-//     }, function (error) {
-//         console.error(error);
-//         alert('Unable to capture your screen. Please check console logs.\n' + error);
-//     });
-// }
-function captureScreen(callback) {
-    invokeGetDisplayMedia(function (screen) {
-        addStreamStopListener(screen, function () {
-            document.getElementById('btn-stop-recording').click();
-        });
-
-        callback(screen);
-    }, function (error) {
-        console.error(error);
-        alert('Unable to capture your screen. Please check console logs.\n' + error);
-    });
-}
-
 function captureAudioWithVideo(callback) {
     invokeGetDisplayMedia(function (screen) {
         addStreamStopListener(screen, function () {
@@ -110,71 +85,6 @@ var recorder; // globally accessible
 var audioRecorder;
 var h3 = document.querySelector('h3');
 var blobs = [];
-
-function consumeAudio(anAudio) {
-    audio.srcObject = anAudio;
-    //1. merge the stream.
-
-
-    //instantiate the record rtc library
-    //with specific constraint
-    //and the
-    audioRecorder = RecordRTC(anAudio, {
-        recordType: MediaStreamRecorder,
-        mimeType: 'audio/wav',
-        timeSlice: 1000,// pass this parameter
-        //getNativeBlob: true,
-        ondataavailable: function (blob) {
-            //blobs.push(blob);
-
-            connection.send(blob);
-            var size = 0;
-            blobs.forEach(function (b) {
-                size += b.size;
-            });
-            h3.innerHTML = 'Total blobs: ' + blobs.length + ' (Total size: ' + bytesToSize(size) + ')';
-
-        }
-    });
-
-    audioRecorder.startRecording();
-
-    // release screen on stopRecording
-    audioRecorder.audio = anAudio;
-
-    //document.getElementById('btn-stop-recording').disabled = false;
-}
-
-function consume(screen) {
-    video.srcObject = screen;
-    //instantiate the record rtc library
-    //with specific constraint
-    //and the
-    recorder = RecordRTC(screen, {
-        recordType: MediaStreamRecorder,
-        mimeType: 'video/webm',
-        timeSlice: 1000,// pass this parameter
-        //getNativeBlob: true,
-
-        ondataavailable: function (blob) {
-            blobs.push(blob);
-            connection.send(blob);
-            var size = 0;
-            blobs.forEach(function (b) {
-                size += b.size;
-            });
-            h3.innerHTML = 'Total blobs: ' + blobs.length + ' (Total size: ' + bytesToSize(size) + ')';
-
-        }
-    });
-
-    recorder.startRecording();
-
-    // release screen on stopRecording
-    recorder.screen = screen;
-
-    document.getElementById('btn-stop-recording').disabled = false;
-}
 
 document.getElementById('btn-start-recording').onclick = function () {
     this.disabled = true;
