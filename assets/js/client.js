@@ -1,6 +1,5 @@
 const uuid = new Date().getTime().toString();
 var video = document.querySelector('video');
-var audio = document.querySelector('audio')
 var connection = new WebSocket('ws://localhost:9090');
 
 connection.onopen = (anEvent) => {
@@ -185,7 +184,7 @@ document.getElementById('btn-start-recording').onclick = function () {
     captureAudioWithVideo(function (screen) {
         invokeUserMedia(function (anAudio) {
             video.srcObject = screen;
-            audio.srcObject = anAudio;
+            //audio.srcObject = anAudio;
             recorder = RecordRTC([screen, anAudio], {
                 type: 'video',
                 mimeType: 'video/webm',
