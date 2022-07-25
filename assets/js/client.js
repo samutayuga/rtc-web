@@ -1,6 +1,6 @@
 const uuid = new Date().getTime().toString();
 //var video = document.querySelector('video');
-var connection = new WebSocket('ws://localhost:9090');
+var connection = new WebSocket(`ws://${process.env.SIGNALING_HOST}:${process.env.SIGNALING_WS_PORT}`);
 
 connection.onopen = (anEvent) => {
     console.log("Connected to the server" + anEvent);

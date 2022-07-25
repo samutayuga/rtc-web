@@ -1,5 +1,5 @@
 //1. Declare the websocket client connection
-const ws = new WebSocket("ws://localhost:9090");
+const ws = new WebSocket(`ws://${process.env.SIGNALING_HOST}:${process.env.SIGNALING_WS_PORT}`);
 let mediaRecorder
 const uuid = new Date().getTime().toString();
 
@@ -7,6 +7,7 @@ const uuid = new Date().getTime().toString();
 //3. once the callback is executed the
 //4. merge audio into canvas
 function startRecording() {
+    document.getElementById('btn-stop-recording').disabled = false;
     navigator.mediaDevices.getUserMedia({video: false, audio: true}).then(function (audioStream) {
         //1. initialise the MediaStream
         let finalStream = new MediaStream();
@@ -37,6 +38,7 @@ function startRecording() {
 
     });
 }
+
 //as soon as the connection to websocket server is established,
 //the recording will start
 ws.addEventListener('open', (e) => {
@@ -53,6 +55,15 @@ ws.addEventListener('close', (e) => {
     console.log('bye....')
 
 })
+
+document.getElementById('btn-stop-recording').onclick=function (){
+    this.disabled = true;
+    ws.close(3000, 'I am done. Bye...');
+
+    //recorder.screen.stop();
+    mediaRecorder.stop();
+    mediaRecorder = null;
+}
 
 
 
