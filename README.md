@@ -6,10 +6,10 @@ make it available for further use, such as replay or live-streaming.
 Some alternative to be used,
 
 
-| API             | Comment                                                                                             | Device Input   |
-|-----------------|-----------------------------------------------------------------------------------------------------|----------------|
-| getUserMedia    | Not suitable, since it expects the camera, web cam as the media input                               | Web Camera     |
-| getMediaDisplay | Suitable as it is capture the screen                                                                | Screen Sharing |
+| API             | Comment                                                                                                  | Device Input   |
+|-----------------|----------------------------------------------------------------------------------------------------------|----------------|
+| getUserMedia    | Not suitable, since it expects the camera, web cam as the media input                                    | Web Camera     |
+| getMediaDisplay | Suitable as it is capture the screen, however the it is slow during the streaming                        | Screen Sharing |
 | html element    | Suitable as it is capture canvas. However it requires the <br/>boundary covering the area to be recorded | Canvas         |
 
 ## Implementation Challenge

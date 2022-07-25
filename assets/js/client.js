@@ -1,5 +1,5 @@
 const uuid = new Date().getTime().toString();
-var video = document.querySelector('video');
+//var video = document.querySelector('video');
 var connection = new WebSocket('ws://localhost:9090');
 
 connection.onopen = (anEvent) => {
@@ -58,6 +58,18 @@ function invokeGetDisplayMedia(success, error) {
     }
 }
 
+function captureDisplay(callback) {
+    invokeGetDisplayMedia(function (screen) {
+        addStreamStopListener(screen, function () {
+            document.getElementById('btn-stop-recording').click();
+        });
+
+        callback(screen);
+    }, function (error) {
+        console.error(error);
+        alert('Unable to capture your screen. Please check console logs.\n' + error);
+    });
+}
 
 function captureAudioWithVideo(callback) {
     invokeGetDisplayMedia(function (screen) {
@@ -74,11 +86,11 @@ function captureAudioWithVideo(callback) {
 
 
 function stopRecordingCallback() {
-    video.src = video.srcObject = null;
-    video.src = URL.createObjectURL(recorder.getBlob());
+    // video.src = video.srcObject = null;
+    // video.src = URL.createObjectURL(recorder.getBlob());
     connection.close(3000, 'I am done. Bye...');
 
-    recorder.screen.stop();
+    //recorder.screen.stop();
     recorder.destroy();
     recorder = null;
 
@@ -87,7 +99,7 @@ function stopRecordingCallback() {
 }
 
 var recorder; // globally accessible
-var audioRecorder;
+var mediaRecorder;
 var h3 = document.querySelector('h3');
 var blobs = [];
 
@@ -96,35 +108,101 @@ document.getElementById('btn-start-recording').onclick = function () {
     connection.send(uuid);
     //capture the screen
     //captureScreen(consume);
-    captureAudioWithVideo(function (screen) {
-        invokeUserMedia(function (anAudio) {
-            video.srcObject = screen;
-            //audio.srcObject = anAudio;
-            recorder = RecordRTC([screen, anAudio], {
-                type: 'video',
-                mimeType: 'video/webm',
-                timeSlice: 1000,
-                ondataavailable: function (blob) {
-                    blobs.push(blob);
-                    connection.send(blob);
-                    var size = 0;
-                    blobs.forEach(function (b) {
-                        size += b.size;
-                    });
-                    h3.innerHTML = 'Total blobs: ' + blobs.length + ' (Total size: ' + bytesToSize(size) + ')';
-                }
+    //captureDisplay(function (screen) {
+    //invokeUserMedia(function (anAudio) {
+    navigator.mediaDevices.getDisplayMedia({video: true, audio: false}).then(function (display) {
+        navigator.mediaDevices.getUserMedia({video: false, audio: true}).then(function (audio) {
+            // recorder = RecordRTC([display, audio], {
+            //     type: 'video',
+            //     mimeType: 'video/webm;codecs=h264',
+            //     timeSlice: 1000,
+            //     ondataavailable: function (blob) {
+            //         blobs.push(blob);
+            //         connection.send(blob);
+            //         var size = 0;
+            //         blobs.forEach(function (b) {
+            //             size += b.size;
+            //         });
+            //         h3.innerHTML = 'Total blobs: ' + blobs.length + ' (Total size: ' + bytesToSize(size) + ')';
+            //     }
+            // });
+            // recorder.startRecording();
+            //1. initialise the MediaStream
+            let finalStream = new MediaStream();
+
+            //2. handle the canvas capturing with 30 frame per second
+            //let cvStream = document.querySelector('canvas').captureStream(30);//30 fps
+            //3. get the audio tracks and include into the stream
+            audio.getTracks().forEach(function (track) {
+                finalStream.addTrack(track);
             });
-            recorder.startRecording();
-            recorder.screen = screen;
-            recorder.audio = anAudio;
-            document.getElementById('btn-stop-recording').disabled = false;
+            //4. get the video tracks and include into the stream
+            display.getTracks().forEach(function (track) {
+                finalStream.addTrack(track);
+            });
+            //5. Initialize the MediaRecorder with the MediaStream, mimeType and 3MB per seconds of video
+            mediaRecorder = new MediaRecorder(finalStream, {
+                mimeType: 'video/webm;codecs=h264',
+                videoBitsPerSecond: 3 * 1024 * 1024
+            });
+            //6. Declare the dataavailable callback function and what to do upon dataavailable triggered.
+            mediaRecorder.addEventListener('dataavailable', (e) => {
+                //7. publish the media stream through websocket
+                connection.send(e.data);
+            })
+            //6. Declare the stop callback function
+            mediaRecorder.addEventListener('stop', connection.close.bind(connection));
+            mediaRecorder.start(1000);//start recording and dump data every second
         });
+
     });
+    //video.srcObject = screen;
+    //audio.srcObject = anAudio;
+
+    //recorder.screen = screen;
+    //recorder.audio = anAudio;
+    document.getElementById('btn-stop-recording').disabled = false;
+    //  });
+    // });
     //capture the audio
     //captureAudio(consumeAudio);
 
 
 };
+// document.getElementById('btn-start-recording').onclick = function () {
+//     this.disabled = true;
+//     connection.send(uuid);
+//     //capture the screen
+//     //captureScreen(consume);
+//     captureAudioWithVideo(function (screen) {
+//         invokeUserMedia(function (anAudio) {
+//             video.srcObject = screen;
+//             //audio.srcObject = anAudio;
+//             recorder = RecordRTC([screen, anAudio], {
+//                 type: 'video',
+//                 mimeType: 'video/webm;codecs=h264',
+//                 timeSlice: 1000,
+//                 ondataavailable: function (blob) {
+//                     blobs.push(blob);
+//                     connection.send(blob);
+//                     var size = 0;
+//                     blobs.forEach(function (b) {
+//                         size += b.size;
+//                     });
+//                     h3.innerHTML = 'Total blobs: ' + blobs.length + ' (Total size: ' + bytesToSize(size) + ')';
+//                 }
+//             });
+//             recorder.startRecording();
+//             recorder.screen = screen;
+//             recorder.audio = anAudio;
+//             document.getElementById('btn-stop-recording').disabled = false;
+//         });
+//     });
+//     //capture the audio
+//     //captureAudio(consumeAudio);
+//
+//
+// };
 
 document.getElementById('btn-stop-recording').onclick = function () {
     this.disabled = true;

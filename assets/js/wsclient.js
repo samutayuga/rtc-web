@@ -7,9 +7,6 @@ const uuid = new Date().getTime().toString();
 //3. once the callback is executed the
 //4. merge audio into canvas
 function startRecording() {
-    // vid = document.createElement('video');
-    // vid.src = 'https://dl.dropboxusercontent.com/s/bch2j17v6ny4ako/movie720p.mp4';
-    // //document.querySelector('video')
     navigator.mediaDevices.getUserMedia({video: false, audio: true}).then(function (audioStream) {
         //1. initialise the MediaStream
         let finalStream = new MediaStream();
