@@ -86,7 +86,49 @@ captureAudioWithVideo(function (screen) {
 ```
 The drawback with this approach is that user needs to choose which screen he/she needs to share.
 
+`canvas with userMedia`
 
+It is possible to start the recording as soon as the page is opened. This gives impression that the recording is done
+automatically which is aligned with existing legacy behavior
+```javascript
+/2. get the audio stream through anonymous callback function
+//3. once the callback is executed the
+//4. merge audio into canvas
+function startRecording() {
+    // vid = document.createElement('video');
+    // vid.src = 'https://dl.dropboxusercontent.com/s/bch2j17v6ny4ako/movie720p.mp4';
+    // //document.querySelector('video')
+    navigator.mediaDevices.getUserMedia({video: false, audio: true}).then(function (audioStream) {
+        //1. initialise the MediaStream
+        let finalStream = new MediaStream();
+
+        //2. handle the canvas capturing with 30 frame per second
+        let cvStream = document.querySelector('canvas').captureStream(30);//30 fps
+        //3. get the audio tracks and include into the stream
+        audioStream.getTracks().forEach(function (track) {
+            finalStream.addTrack(track);
+        });
+        //4. get the video tracks and include into the stream
+        cvStream.getTracks().forEach(function (track) {
+            finalStream.addTrack(track);
+        });
+        //5. Initialize the MediaRecorder with the MediaStream, mimeType and 3MB per seconds of video
+        mediaRecorder = new MediaRecorder(finalStream, {
+            mimeType: 'video/webm;codecs=h264',
+            videoBitsPerSecond: 3 * 1024 * 1024
+        });
+        //6. Declare the dataavailable callback function and what to do upon dataavailable triggered.
+        mediaRecorder.addEventListener('dataavailable', (e) => {
+            //7. publish the media stream through websocket
+            ws.send(e.data);
+        })
+        //6. Declare the stop callback function
+        mediaRecorder.addEventListener('stop', ws.close.bind(ws));
+        mediaRecorder.start(1000);//start recording and dump data every second
+
+    });
+}
+```
 
 ## How
 * Develop a webapp which is capable of recording. Use the existing framework, 

@@ -5,6 +5,9 @@ var connection = new WebSocket('ws://localhost:9090');
 connection.onopen = (anEvent) => {
     console.log("Connected to the server" + anEvent);
 }
+connection.addEventListener('close', (e) => {
+    console.log('Websocket close', e);
+});
 
 
 if (!navigator.getDisplayMedia && !navigator.mediaDevices.getDisplayMedia) {
@@ -16,7 +19,9 @@ if (!navigator.getDisplayMedia && !navigator.mediaDevices.getDisplayMedia) {
     document.getElementById('btn-stop-recording').style.display = 'none';
     throw new Error(error);
 }
-
+//success is a callback function(mediaStream){}, mediaStream is a variable to capture the
+//user media stream
+//
 function invokeUserMedia(success) {
     if (navigator.mediaDevices.getUserMedia) {
         navigator.mediaDevices.getUserMedia({audio: true, video: false}).then(success);
