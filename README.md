@@ -91,7 +91,7 @@ The drawback with this approach is that user needs to choose which screen he/she
 It is possible to start the recording as soon as the page is opened. This gives impression that the recording is done
 automatically which is aligned with existing legacy behavior
 ```javascript
-/2. get the audio stream through anonymous callback function
+//2. get the audio stream through anonymous callback function
 //3. once the callback is executed the
 //4. merge audio into canvas
 function startRecording() {

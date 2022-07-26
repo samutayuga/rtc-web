@@ -1,5 +1,5 @@
 //1. Declare the websocket client connection
-const ws = new WebSocket(`ws://${process.env.SIGNALING_HOST}:${process.env.SIGNALING_WS_PORT}`);
+const ws = new WebSocket(`ws://127.0.0.1:9090`);
 let mediaRecorder
 const uuid = new Date().getTime().toString();
 
